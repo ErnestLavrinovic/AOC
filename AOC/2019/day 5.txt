@@ -1,0 +1,109 @@
+using System;
+using System.IO;
+using System.Linq;
+
+namespace AOC__2018_day1_part1 //2019 day 5 part 1 im lazy to change projects
+{
+    internal class Program
+    {
+        private static void Main(string[] args)
+        {
+            string input = File.ReadAllText("C:/Users/HP//source/repos/AOC  2018 day1 part1/AOC  2018 day1 part1/input.txt");
+            //Console.WriteLine(input);
+            int[] numbers = input.Split(',').Select(int.Parse).ToArray();
+            int[] memory = numbers.ToArray();
+            RunProgram(memory);
+        }
+
+        private static void RunProgram(int[] numbers)
+        {
+            int pos = 0;
+            while (pos < numbers.Length)
+            {
+                int instruction = numbers[pos];
+                int opcode = instruction % 100;
+                Console.WriteLine(numbers[pos]);
+                if (opcode == 99)
+                {
+                    Console.WriteLine("HALT");
+                    break;
+                }
+                else
+                pos = OPT(numbers, pos);
+            }
+            Console.ReadLine();
+        }
+
+        private static int OPT(int[] numbers, int pos)
+        {
+            int newPos = pos;
+            int instruction = numbers[pos];
+            int opcode = instruction % 100;
+            int mode1 = (instruction / 100) % 10;
+            int mode2 = (instruction / 1000) % 10;
+
+            if (opcode == 1 || opcode == 2)
+            {
+                int a = GetParameter(numbers, numbers[pos + 1], mode1);
+                int b = GetParameter(numbers, numbers[pos + 2], mode2);
+                int c = numbers[pos + 3];
+                if (opcode == 1)
+                {
+                    numbers[c] = a + b;
+                }
+                else if (opcode == 2)
+                {
+                    numbers[c] = a * b;
+                }
+                return newPos += 4;
+            }
+            else if (opcode == 3)
+            {
+                var text = Console.ReadLine();
+                var input = int.Parse(text);
+                numbers[numbers[pos+1]] = input;
+                return newPos += 2;
+            }
+            else if (opcode == 4)
+            {
+                int mode = (instruction / 100) % 10;
+                int outputVal = GetParameter(numbers, numbers[pos + 1], mode);
+                Console.WriteLine(outputVal);
+                return newPos += 2;
+            }
+            else if (opcode == 5) //jump if true
+            {
+                int a = GetParameter(numbers, numbers[pos + 1], mode1);
+                int b = GetParameter(numbers, numbers[pos + 2], mode2);
+                return a != 0 ? b : pos + 3;
+            }
+            else if (opcode == 6) //jump if false
+            {
+                int a = GetParameter(numbers, numbers[pos + 1], mode1);
+                int b = GetParameter(numbers, numbers[pos + 2], mode2);
+                return a == 0 ? b : pos + 3;
+            }
+            else if (opcode == 7) // less than
+            {
+                int a = GetParameter(numbers, numbers[pos + 1], mode1);
+                int b = GetParameter(numbers, numbers[pos + 2], mode2);
+                int c = numbers[pos + 3];
+                numbers[c] = a < b ? 1 : 0;
+                return pos + 4;
+            }
+            else if (opcode == 8) // equals
+            {
+                int a = GetParameter(numbers, numbers[pos + 1], mode1);
+                int b = GetParameter(numbers, numbers[pos + 2], mode2);
+                int c = numbers[pos + 3];
+                numbers[c] = a == b ? 1 : 0;
+                return pos + 4;
+            }
+            return newPos;
+        }
+        static int GetParameter(int[] memory, int value, int mode)
+        {
+            return mode == 0 ? memory[value] : value;
+        }
+    }
+}

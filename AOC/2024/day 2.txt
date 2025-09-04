@@ -1,0 +1,102 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace AOC
+{
+    internal class Program
+    {
+        public static string incrementcheck(string line)
+        {
+
+            string[] numbers = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            int[] ints = Array.ConvertAll(numbers, int.Parse);
+            bool decreasing = false;
+            bool increasing = false;
+            var faultcount = 0;
+
+            for (int i = 0; i < ints.Length - 1; i++)
+            {
+                if (ints[i] - ints[i + 1] > 3 | ints[i] - ints[i + 1] < -3) faultcount++; ;
+                if (ints[i] > ints[i + 1])//decreasing
+                {
+                    decreasing = true;
+                }
+                else if (ints[i] < ints[i + 1])//increasing
+                {
+                    increasing = true;
+                }
+                if (ints[i] == ints[i + 1])
+                    faultcount++;
+                if (decreasing == true && increasing == true)
+                    faultcount++; ;
+            }
+            if (faultcount == 0) return "safe";
+            else return "unsafe";
+        }
+
+        public static string SafeCheckWithRemoval(string line)
+        {
+            // Check the initial line first
+            string result = incrementcheck(line);
+            if (result == "safe")
+            {
+                return "safe";
+            }
+            string[] numbers = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            for (int i = 0; i < numbers.Length; i++)
+            {
+                string[] reducedNumbers = new string[numbers.Length - 1];
+                int index = 0;
+                for (int j = 0; j < numbers.Length; j++)
+                {
+                    if (j == i) continue;
+                    reducedNumbers[index++] = numbers[j];
+                }
+
+                string newLine = string.Join(" ", reducedNumbers);
+                result = incrementcheck(newLine);
+                if (result == "safe")
+                {
+                    return "safe";
+                }
+            }
+            return "unsafe, no removal makes it safe";
+        }
+
+        static void Main(string[] args)
+        {
+
+            Console.Out.WriteLine("Helloworld!");
+
+            string filePath = "input.txt";
+            var count = 0;
+            try
+            {
+                string[] lines = File.ReadAllLines(filePath);
+                
+                foreach (string line in lines)
+                {
+                    Console.WriteLine(line);
+                    string result = SafeCheckWithRemoval(line);
+                    Console.WriteLine(result); //print safe/unsafe
+                    
+                    if (result == "safe") count++;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            Console.WriteLine($"Safe Count: {count}");
+            Console.WriteLine("Press Enter to exit...");
+            Console.ReadLine();
+
+        }
+    }
+}

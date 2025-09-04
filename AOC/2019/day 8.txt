@@ -1,0 +1,50 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+namespace AOC__2018_day1_part1 //2019 day 8 part 2 im lazy to change projects
+{
+    internal class Program
+    {
+        private static void Main(string[] args)
+        {
+            string input = File.ReadAllText("C:/Users/HP/source/repos/AOC  2018 day1 part1/AOC  2018 day1 part1/input.txt").Trim();
+            int[] array = input.Select(c => int.Parse(c.ToString())).ToArray();
+
+            int layerSize = 25 * 6;
+
+            List<int[]> layers = new List<int[]>();
+            for (int i = 0; i < array.Length; i += layerSize)
+            {
+                layers.Add(array.Skip(i).Take(layerSize).ToArray());
+            }
+
+            int[] finalImage = new int[layerSize];
+            for (int pixel = 0; pixel < layerSize; pixel++)
+            {
+                foreach (var layer in layers)
+                {
+                    if (layer[pixel] != 2)
+                    {
+                        finalImage[pixel] = layer[pixel];
+                        break;
+                    }
+                }
+            }
+
+            Console.WriteLine("Decoded Image:");
+            for (int i = 0; i < 6; i++)
+            {
+                for (int j = 0; j < 25; j++)
+                {
+                    int pixel = finalImage[i * 25 + j];
+                    Console.Write(pixel == 1 ? '█' : ' ');
+                }
+                Console.WriteLine();
+            }
+
+            Console.ReadLine();
+        }
+    }
+}

@@ -1,0 +1,163 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using System.Web;
+using System.Threading;
+
+namespace AOC
+{
+    internal class Program
+    {
+        static bool IsValidIndex(char [,]data, int y, int x)
+        {
+            return x >= 0 && x < data.GetLength(0) && y >= 0 && y < data.GetLength(1);
+        }
+        static public int checksurrounding(char[,] data, int y, int x)
+        {
+            int count = 0;
+
+            // South
+            if (IsValidIndex(data, x, y + 3))
+            {
+                if (data[y + 1, x] == 'M')
+                    if (data[y + 2, x] == 'A')
+                        if (data[y + 3, x] == 'S') {  count++;  Console.WriteLine("South"); }
+            }
+
+            // North
+            if (IsValidIndex(data, x, y - 3))
+            {
+                if (data[y - 1, x] == 'M')
+                    if (data[y - 2, x] == 'A')
+                        if (data[y - 3, x] == 'S') { count++; Console.WriteLine("North"); }
+            }
+
+            // East
+            if (IsValidIndex(data, x + 3, y))
+            {
+                if (data[y, x + 1] == 'M')
+                    if (data[y, x + 2] == 'A')
+                        if (data[y, x + 3] == 'S') { count++; Console.WriteLine("East"); }
+            }
+
+            // West
+            if (IsValidIndex(data, x - 3, y))
+            {
+                if (data[y, x - 1] == 'M')
+                    if (data[y, x - 2] == 'A')
+                        if (data[y, x - 3] == 'S') { count++; Console.WriteLine("West"); }
+            }
+
+            // Southeast
+            if (IsValidIndex(data, x + 3, y + 3))
+            {
+                if (data[y + 1, x + 1] == 'M')
+                    if (data[y + 2, x + 2] == 'A')
+                        if (data[y + 3, x + 3] == 'S') { count++; Console.WriteLine("Southeast"); }
+            }
+
+            // Southwest
+            if (IsValidIndex(data, x - 3, y + 3))
+            {
+                if (data[y + 1, x - 1] == 'M')
+                    if (data[y + 2, x - 2] == 'A')
+                        if (data[y + 3, x - 3] == 'S') { count++; Console.WriteLine("Southwest"); }
+            }
+
+            // Northwest
+            if (IsValidIndex(data, x - 3, y - 3))
+            {
+                if (data[y - 1, x - 1] == 'M')
+                    if (data[y - 2, x - 2] == 'A')
+                        if (data[y - 3, x - 3] == 'S') { count++; Console.WriteLine("Northwest"); }
+            }
+
+            // Northeast
+            if (IsValidIndex(data, x + 3, y - 3))
+            {
+                if (data[y - 1, x + 1] == 'M')
+                    if (data[y - 2, x + 2] == 'A')
+                        if (data[y - 3, x + 3] == 'S') { count++; Console.WriteLine("Northeast"); }
+            }
+
+            Console.WriteLine($"Found: {count}");
+
+            return count;
+        }
+
+        static void Main(string[] args)
+        {
+
+            Console.Out.WriteLine("Helloworld!");
+
+            string filePath = "input.txt";
+            int sum = 0;
+
+            try
+            {
+                string[] lines = File.ReadAllLines(filePath);
+
+                // Create a 2D char array based on the dimensions of the input
+                char[,] data = new char[lines.Length, lines[0].Length];
+
+                // Fill the 2D array with characters
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    for (int j = 0; j < lines[i].Length; j++)
+                    {
+                        data[i, j] = lines[i][j];
+                    }
+                }
+
+                // Print the 2D array
+                Console.WriteLine("Data from the file:");
+                for (int i = 0; i < data.GetLength(0); i++)
+                {
+                    for (int j = 0; j < data.GetLength(1); j++)
+                    {
+                        Console.Write(data[i, j] + " ");
+                    }
+                    Console.WriteLine();
+                }
+
+                int y = 0;
+                int x = 0;
+                foreach (string line in lines)
+                {
+                    string pattern = @"X";
+                    MatchCollection matches = Regex.Matches(line, pattern);
+                    foreach (Match match in matches)
+                    {
+                        //Console.WriteLine(line);
+                        x = match.Index;
+                        Console.WriteLine($"Coordinates: {y} {x}");
+                        var result = checksurrounding(data, y, x);
+                        Console.WriteLine($"");
+                        sum = sum + result;
+
+
+                    }
+
+                    //Console.WriteLine($"The pattern '{pattern}' was found {matches.Count} time(s).");
+
+                    y++;
+                }
+                Console.WriteLine($"SUM: {sum}");
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+
+            Console.WriteLine("Press Enter to exit...");
+            Console.ReadLine();
+
+        }
+    }
+}

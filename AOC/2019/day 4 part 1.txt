@@ -1,0 +1,60 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+namespace AOC__2018_day1_part1 //2019 day 4 part 1 im lazy to change projects
+{
+    
+    internal class Program
+    {
+        private static void Main(string[] args)
+        {
+            //string[] lines = File.ReadAllLines("C:/Users/HP//source/repos/AOC  2018 day1 part1/AOC  2018 day1 part1/input.txt");
+            //256310-732736
+            int min = 256310;
+            int max = 732736;
+            int count = checkCombinations(min, max);
+            Console.WriteLine(count);
+            Console.ReadLine();
+        }
+
+        public static int checkCombinations(int min, int max)
+        {
+            int count = 0;
+            // for every pair of digits
+            // for every combination with no decrements
+            for (int i = min;  i <= max; i++) //check every number in range
+            {
+                //convert to digit array
+                int[] digits = i.ToString().Select(c => c - '0').ToArray();
+
+                    if (digits[0] <= digits[1] && //check for decrements
+                        digits[1] <= digits[2] &&
+                        digits[2] <= digits[3] &&
+                        digits[3] <= digits[4] &&
+                        digits[4] <= digits[5]) {
+                    bool foundPair = false;
+                    for (int j = 0; j < digits.Length; j++)
+                        {
+                        if (j + 1 != digits.Length)
+                            if (digits[j] == digits[j + 1])
+                            {
+                                foundPair = true;
+                                break; //to not overcount
+                            }
+                        }
+                        if(foundPair == true)
+                    {
+                        Console.WriteLine(i);
+                        count++;
+                    }
+                    }
+                
+            }
+            return count;
+        }
+    }
+
+
+}

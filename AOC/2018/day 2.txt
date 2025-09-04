@@ -1,0 +1,60 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace AOC__2018_day1_part1 //day 2 part 2
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            List<string> lines = new List<string>(
+                File.ReadAllLines("C:/Users/HP/source/repos/AOC  2018 day1 part1/AOC  2018 day1 part1/input.txt"));
+
+            for (int i = 0; i < lines.Count; i++)
+            {
+                for (int j = i + 1; j < lines.Count; j++)
+                {
+                    string line1 = lines[i];
+                    string line2 = lines[j];
+
+                    if (DifferByOneChar(line1, line2, out string common))
+                    {
+                        Console.WriteLine("Common characters (with the difference removed):");
+                        Console.WriteLine(common);
+                        Console.WriteLine("Press Enter to exit...");
+                        Console.ReadLine();
+                        return;
+                    }
+                }
+            }
+
+            Console.WriteLine("No matching lines found.");
+            Console.ReadLine();
+        }
+        static bool DifferByOneChar(string a, string b, out string common)
+        {
+            int diffCount = 0;
+            common = "";
+
+            if (a.Length != b.Length) //return if lengths differ
+                return false;
+
+            for (int i = 0; i < a.Length; i++)
+            {
+                if (a[i] != b[i])
+                {
+                    diffCount++;
+                    if (diffCount > 1)
+                        return false; 
+                }
+                else
+                {
+                    common += a[i]; 
+                }
+            }
+
+            return diffCount == 1;
+        }
+    }
+}

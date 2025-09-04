@@ -1,0 +1,31 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+namespace AOC__2018_day1_part1 //2019 day 1 part 2 im lazy to change projects
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            List<int> numbers = File.ReadAllLines("C:/Users/HP//source/repos/AOC  2018 day1 part1/AOC  2018 day1 part1/input.txt")
+                                    .Select(line => int.Parse(line))
+                                    .ToList();
+            int sum = 0;
+            foreach (int number in numbers){
+                int result = (int)Math.Floor((double)number / 3) - 2;
+                while (result > 0)
+                {
+                    sum = sum + result;
+                    //Console.WriteLine(result);
+                    result = (int)Math.Floor((double)result / 3) - 2;
+                }
+            }
+            Console.WriteLine(sum);
+            Console.WriteLine("Press Enter to exit...");
+            Console.ReadLine();
+        }
+        
+    }
+}

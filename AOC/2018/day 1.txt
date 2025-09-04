@@ -1,0 +1,47 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AOC__2018_day1_part1
+{
+    internal class Program
+    {
+
+        static void Main(string[] args)
+        {
+            List<int> numbers = new List<int>();
+            int result = 0;
+            bool flag = true; //havent seen the result
+            int frequency = 0;
+            while (flag)
+            {
+                using (StreamReader reader = new StreamReader("C:/Users/HP/source/repos/AOC  2018 day1 part1/AOC  2018 day1 part1/input.txt"))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        if (!numbers.Contains(result))
+                        {
+                            numbers.Add(result);
+                            //Console.WriteLine($"Added: {result}");
+                        }
+                        else
+                        {
+                            flag = false;
+                            frequency = result;
+                            break;
+                        }
+                        result = result + int.Parse(line);
+                    }
+                }
+            }
+            Console.WriteLine("Result: "+ result);
+            Console.WriteLine(frequency);
+            Console.WriteLine("Press Enter to exit...");
+            Console.ReadLine(); //pause the console
+        }
+    }
+}

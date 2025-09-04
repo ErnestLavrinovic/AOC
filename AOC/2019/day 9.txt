@@ -1,0 +1,172 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+
+class AmpState
+{
+    public long[] memory;
+    public int pos;
+    public long relativeBase = 0;
+    public Queue<long> inputs;
+    public bool halted;
+}
+
+class Program
+{
+    static void Main()
+    {
+        string input = File.ReadAllText("input.txt");
+        long[] numbers = input.Split(',').Select(long.Parse).ToArray();
+
+        var mem = new long[10000]; // Extended memory
+        Array.Copy(numbers, mem, numbers.Length);
+
+        var state = new AmpState
+        {
+            memory = mem,
+            pos = 0,
+            relativeBase = 0,
+            inputs = new Queue<long>(),
+            halted = false
+        };
+
+        state.inputs.Enqueue(2); //inputs 1 for part 1 and 2 for part 2
+
+        while (!state.halted)
+        {
+            var output = RunProgram(state);
+            if (output.HasValue)
+                Console.WriteLine("Output: " + output.Value);
+        }
+        Console.ReadLine();
+    }
+
+    static long? RunProgram(AmpState state)
+    {
+        var memory = state.memory;
+        var pos = state.pos;
+        var inputs = state.inputs;
+
+        while (pos < memory.Length)
+        {
+            int instruction = (int)memory[pos];
+            int opcode = instruction % 100;
+            int mode1 = (instruction / 100) % 10;
+            int mode2 = (instruction / 1000) % 10;
+            int mode3 = (instruction / 10000) % 10;
+
+            if (opcode == 99)
+            {
+                state.halted = true;
+                break;
+            }
+
+            switch (opcode)
+            {
+                case 1:
+                    {
+                        long a = GetParam(memory, memory[pos + 1], mode1, state.relativeBase);
+                        long b = GetParam(memory, memory[pos + 2], mode2, state.relativeBase);
+                        long addr = GetWriteAddress(memory[pos + 3], mode3, state.relativeBase);
+                        memory[addr] = a + b;
+                        pos += 4;
+                        break;
+                    }
+                case 2:
+                    {
+                        long a = GetParam(memory, memory[pos + 1], mode1, state.relativeBase);
+                        long b = GetParam(memory, memory[pos + 2], mode2, state.relativeBase);
+                        long addr = GetWriteAddress(memory[pos + 3], mode3, state.relativeBase);
+                        memory[addr] = a * b;
+                        pos += 4;
+                        break;
+                    }
+                case 3:
+                    {
+                        if (inputs.Count == 0)
+                        {
+                            state.pos = pos;
+                            return null;
+                        }
+                        long addr = GetWriteAddress(memory[pos + 1], mode1, state.relativeBase);
+                        memory[addr] = inputs.Dequeue();
+                        pos += 2;
+                        break;
+                    }
+                case 4:
+                    {
+                        long output = GetParam(memory, memory[pos + 1], mode1, state.relativeBase);
+                        pos += 2;
+                        state.pos = pos;
+                        return output;
+                    }
+                case 5:
+                    {
+                        long a = GetParam(memory, memory[pos + 1], mode1, state.relativeBase);
+                        long b = GetParam(memory, memory[pos + 2], mode2, state.relativeBase);
+                        pos = a != 0 ? (int)b : pos + 3;
+                        break;
+                    }
+                case 6:
+                    {
+                        long a = GetParam(memory, memory[pos + 1], mode1, state.relativeBase);
+                        long b = GetParam(memory, memory[pos + 2], mode2, state.relativeBase);
+                        pos = a == 0 ? (int)b : pos + 3;
+                        break;
+                    }
+                case 7:
+                    {
+                        long a = GetParam(memory, memory[pos + 1], mode1, state.relativeBase);
+                        long b = GetParam(memory, memory[pos + 2], mode2, state.relativeBase);
+                        long addr = GetWriteAddress(memory[pos + 3], mode3, state.relativeBase);
+                        memory[addr] = a < b ? 1 : 0;
+                        pos += 4;
+                        break;
+                    }
+                case 8:
+                    {
+                        long a = GetParam(memory, memory[pos + 1], mode1, state.relativeBase);
+                        long b = GetParam(memory, memory[pos + 2], mode2, state.relativeBase);
+                        long addr = GetWriteAddress(memory[pos + 3], mode3, state.relativeBase);
+                        memory[addr] = a == b ? 1 : 0;
+                        pos += 4;
+                        break;
+                    }
+                case 9:
+                    {
+                        long val = GetParam(memory, memory[pos + 1], mode1, state.relativeBase);
+                        state.relativeBase += val;
+                        pos += 2;
+                        break;
+                    }
+                default:
+                    throw new Exception("Unknown opcode: " + opcode);
+            }
+        }
+
+        state.pos = pos;
+        return null;
+    }
+
+    static long GetParam(long[] memory, long value, int mode, long relativeBase)
+    {
+        switch (mode)
+        {
+            case 0: { return memory[value]; }
+            case 1: { return value; }
+            case 2: { return memory[relativeBase + value]; }
+            default: throw new Exception("Invalid mode");
+        }
+    }
+
+    static long GetWriteAddress(long value, int mode, long relativeBase)
+    {
+        switch (mode)
+        {
+            case 0: { return value; }
+            case 2: { return relativeBase + value; }
+            default: throw new Exception("Invalid mode");
+        }
+    }
+}

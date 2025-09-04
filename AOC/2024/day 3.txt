@@ -1,0 +1,78 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+
+namespace AOC
+{
+    internal class Program
+    {
+        static int multiply(string line)
+        {
+            string input = line;
+            string pattern = @"\d+"; // Matches one or more digits
+
+            MatchCollection matches = Regex.Matches(input, pattern);
+            if (matches.Count == 2) // Ensure there are exactly two numbers
+            {
+                int num1 = int.Parse(matches[0].Value);
+                int num2 = int.Parse(matches[1].Value);
+
+                int result = num1 * num2; // Perform multiplication
+                Console.WriteLine($"Result of multiplication: {result}");
+                return result;
+            }
+            else
+            {
+                Console.WriteLine("The string does not contain exactly two numbers.");
+                return 0;
+            }
+        }
+
+        static void Main(string[] args)
+        {
+
+            Console.Out.WriteLine("Helloworld!");
+
+            string filePath = "input.txt";
+            int sum = 0;
+            bool flag = true;
+            try
+            {
+                string[] lines = File.ReadAllLines(filePath);
+
+                foreach (string line in lines)
+                {
+                    string pattern = @"mul\(\s*(\d+)\s*,\s*(\d+)\s*\)|do\(\)|don't\(\)"; 
+                    MatchCollection matches = Regex.Matches(line, pattern);
+
+                    Console.WriteLine($"The pattern '{pattern}' was found {matches.Count} time(s).");
+
+                    foreach (Match match in matches)
+                    {
+                        Console.WriteLine($"Occurrence: '{match.Value}' at index {match.Index}");
+                        if (flag == true && match.Value != "do()" && match.Value != "don't()")
+                        {
+                            sum = sum + multiply(match.Value);
+                        }
+                        else if (match.Value == "do()") flag = true;
+                        else if (match.Value == "don't()") flag = false;
+                    }
+                }
+                Console.WriteLine($"SUM: {sum}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+
+            Console.WriteLine("Press Enter to exit...");
+            Console.ReadLine();
+
+        }
+    }
+}

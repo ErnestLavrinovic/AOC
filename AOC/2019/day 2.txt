@@ -1,0 +1,69 @@
+using System;
+using System.IO;
+using System.Linq;
+
+namespace AOC__2018_day1_part1 //2019 day 2 part 2 im lazy to change projects
+{
+    internal class Program
+    {
+        private static void Main(string[] args)
+        {
+            string input = File.ReadAllText("C:/Users/HP//source/repos/AOC  2018 day1 part1/AOC  2018 day1 part1/input.txt");
+            Console.WriteLine(input);
+            int[] numbers = input.Split(',').Select(int.Parse).ToArray();
+            for (int noun = 0; noun <= 99; noun++)
+            {
+                for (int verb = 0; verb <= 99; verb++)
+                {
+                    int[] memory = numbers.ToArray();
+                    memory[1] = noun;
+                    memory[2] = verb;
+                    RunProgram(memory);
+                    if (memory[0] == 19690720)
+                    {
+                        Console.WriteLine("Noun: " + noun);
+                        Console.WriteLine("Verb: " + verb);
+                        Console.WriteLine("Answer: " + (100 * noun + verb));
+                        Console.WriteLine("Press Enter to exit...");
+                        Console.ReadLine();
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Noun: " + noun);
+                        Console.WriteLine("Verb: " + verb);
+                        Console.WriteLine("Not Answer: " + (100 * noun + verb));
+                    }
+                }
+            }
+        }
+
+        private static void RunProgram(int[] numbers)
+        {
+            for (int pos = 0; pos < numbers.Length; pos += 4)
+            {
+                if (numbers[pos] == 99)
+                {
+                    Console.WriteLine("HALT");
+                    break;
+                }
+                OPT(numbers, pos);
+            }
+        }
+
+        private static void OPT(int[] numbers, int pos)
+        {
+            int a = numbers[numbers[pos + 1]];
+            int b = numbers[numbers[pos + 2]];
+            int c = numbers[pos + 3];
+            if (numbers[pos] == 1)
+            {
+                numbers[c] = a + b;
+            }
+            else if (numbers[pos] == 2)
+            {
+                numbers[c] = a * b;
+            }
+        }
+    }
+}

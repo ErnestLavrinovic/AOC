@@ -1,0 +1,79 @@
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AOC
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            List<int> leftlist = new List<int>();
+            List<int> rightlist = new List<int>();
+
+            Console.Out.WriteLine("Helloworld!");
+
+            string filePath = "input.txt";
+
+            try
+            {
+                // Read all lines from the file
+                string[] lines = File.ReadAllLines(filePath);
+
+                // Process each line
+                foreach (string line in lines)
+                {
+                    Console.WriteLine(line); // Print the line
+
+                    string[] numbers = line.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    // Parse the numbers and add to respective lists
+                    if (numbers.Length == 2)
+                    {
+                        int num1 = int.Parse(numbers[0]); // First number
+                        int num2 = int.Parse(numbers[1]); // Second number
+
+                        leftlist.Add(num1);
+                        rightlist.Add(num2);
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Invalid line: {line}");
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+
+
+            leftlist.Sort(); rightlist.Sort() ;
+
+
+            var sum = 0;
+            for (int i = 0; i < leftlist.Count; i++)
+            {
+                var count = 0;
+                for (var j = 0; j < rightlist.Count; j++)
+                {
+                    if (leftlist[i] == rightlist[j]) count++;
+                }
+                Console.WriteLine($"{i}: {leftlist[i]} pasitaiko {count} kartu");
+                sum = sum + leftlist[i] * count;
+                Console.WriteLine($"Sum: {sum}");
+
+            }
+
+
+            Console.WriteLine("Press Enter to exit...");
+            Console.ReadLine();
+
+        }
+    }
+}

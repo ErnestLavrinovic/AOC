@@ -1,0 +1,119 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace AOC__2018_day1_part1 //2019 day 3 part 1 im lazy to change projects
+{
+    class wireSegment //split each move into a segment
+    {
+        public int x1, y1, x2, y2, steps;
+        public bool IsVertical; //is it vertical or horizontal
+
+        public wireSegment(int x1, int y1, int x2, int y2, bool isVertical, int steps)
+        {
+            this.x1 = x1;
+            this.y1 = y1;
+            this.x2 = x2;
+            this.y2 = y2;
+            this.IsVertical = isVertical;
+            this.steps = steps;
+        }
+    }
+    internal class Program
+    {
+        private static void Main(string[] args)
+        {
+            string[] lines = File.ReadAllLines("C:/Users/HP//source/repos/AOC  2018 day1 part1/AOC  2018 day1 part1/input.txt");
+
+            string[] wire1 = lines[0].Split(',');
+            string[] wire2 = lines[1].Split(',');
+
+            List<wireSegment> wire1Segments = BuildSegments(wire1); //make a list of segments for each wire
+            List<wireSegment> wire2Segments = BuildSegments(wire2);
+
+            int minDistance = int.MaxValue;
+            int minSteps = int.MaxValue;
+
+            foreach (var seg1 in wire1Segments) //compare each segment to one another
+            {
+                foreach (var seg2 in wire2Segments)
+                {
+                    //skip parallel segments
+                    if (seg1.IsVertical == seg2.IsVertical)
+                        continue;
+
+                    wireSegment vertical = seg1.IsVertical ? seg1 : seg2;
+                    wireSegment horizontal = seg1.IsVertical ? seg2 : seg1;
+
+                    //check if the vertical segment's x is within the horizontal segment's x-range
+                    //and if the horizontal segment's y is within the vertical segment's y-range
+                    if (IsBetween(vertical.x1, horizontal.x1, horizontal.x2) &&
+                        IsBetween(horizontal.y1, vertical.y1, vertical.y2))
+                    {
+                        int intersectX = vertical.x1;
+                        int intersectY = horizontal.y1;
+
+                        //disregard origin point
+                        if (intersectX == 0 && intersectY == 0)
+                            continue;
+
+                        int distance = Math.Abs(intersectX) + Math.Abs(intersectY);
+                        if (distance < minDistance)
+                            minDistance = distance;
+                        int steps1 = vertical.steps + Math.Abs(vertical.y1 - intersectY);
+                        int steps2 = horizontal.steps + Math.Abs(horizontal.x1 - intersectX);
+                        int totalSteps = steps1 + steps2;
+
+                        if (totalSteps < minSteps)
+                            minSteps = totalSteps;
+                    }
+                }
+            }
+
+            Console.WriteLine($"Closest intersection distance: {minDistance}");
+            Console.WriteLine($"Least number of steps to intersection: {minSteps}");
+
+        }
+
+        private static bool IsBetween(int value, int bound1, int bound2)
+        {
+            return value >= Math.Min(bound1, bound2) && value <= Math.Max(bound1, bound2);
+        }
+
+
+        private static List<wireSegment> BuildSegments(string[] moves)
+        {
+            var segments = new List<wireSegment>();
+            int x = 0, y = 0; //start from origin
+            int steps = 0;
+
+            foreach (string move in moves)
+            {
+                char direction = move[0];
+                int length = int.Parse(move.Substring(1));
+
+                int newX = x, newY = y;
+
+                switch (direction)
+                {
+                    case 'R': newX += length; break;
+                    case 'L': newX -= length; break;
+                    case 'U': newY += length; break;
+                    case 'D': newY -= length; break;
+                }
+
+                bool isVertical = (x == newX);
+                segments.Add(new wireSegment(x, y, newX, newY, isVertical, steps));
+                steps += length;
+
+                //update current position for the next segment
+                x = newX;
+                y = newY;
+            }
+
+            return segments;
+        }
+    }
+
+
+}

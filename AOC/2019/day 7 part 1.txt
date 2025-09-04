@@ -1,0 +1,171 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Collections.Generic;
+
+class PermutationGenerator
+{
+    public static List<List<int>> GetPermutations(List<int> input)
+    {
+        return Generate(input, new List<int>());
+    }
+
+    private static List<List<int>> Generate(List<int> remaining, List<int> current)
+    {
+        List<List<int>> result = new List<List<int>>();
+
+        if (remaining.Count == 0)
+        {
+            result.Add(new List<int>(current));
+            return result;
+        }
+
+        for (int i = 0; i < remaining.Count; i++)
+        {
+            int item = remaining[i];
+
+            List<int> nextRemaining = new List<int>(remaining);
+            nextRemaining.RemoveAt(i);
+
+            List<int> nextCurrent = new List<int>(current);
+            nextCurrent.Add(item);
+
+            result.AddRange(Generate(nextRemaining, nextCurrent));
+        }
+
+        return result;
+    }
+}
+
+namespace AOC__2018_day1_part1 //2019 day 7 part 1 im lazy to change projects
+{
+    internal class Program
+    {
+        private static void Main(string[] args)
+        {
+            string input = File.ReadAllText("C:/Users/HP//source/repos/AOC  2018 day1 part1/AOC  2018 day1 part1/input.txt");
+            //Console.WriteLine(input);
+            int[] numbers = input.Split(',').Select(int.Parse).ToArray();
+            int[] memory = numbers.ToArray();
+
+            int max = int.MinValue;
+            var perms = PermutationGenerator.GetPermutations(new List<int> { 0, 1, 2, 3, 4 });
+
+            foreach (var perm in perms)
+            {
+                int[] array = perm.ToArray();
+                int inputSignal = 0;
+
+                for (int i = 0; i < 5; i++)
+                {
+                    int[] memCopy = numbers.ToArray();
+                    int[] ampInputs = new int[] { array[i], inputSignal };
+                    inputSignal = RunProgram(memCopy, ampInputs);
+                }
+
+                int result = inputSignal;
+                if (result > max) {  
+                    max = result;
+                    Console.WriteLine("New max found!");
+                    Console.WriteLine("Phase setting: " + string.Join(",", array));
+                    Console.WriteLine("Signal: " + max);
+                }
+
+            }
+
+            Console.ReadLine();
+        }
+
+        private static int RunProgram(int[] numbers, int[] inputs)
+        {
+            int pos = 0;
+            int inputIndex = 0;
+            int output = 0;
+
+            while (pos < numbers.Length)
+            {
+                int instruction = numbers[pos];
+                int opcode = instruction % 100;
+                int mode1 = (instruction / 100) % 10;
+                int mode2 = (instruction / 1000) % 10;
+
+                if (opcode == 99)
+                {
+                    //Console.WriteLine("HALT");
+                    break;
+                }
+
+                switch (opcode)
+                {
+                    case 1:
+                        {
+                            int a = GetParameter(numbers, numbers[pos + 1], mode1);
+                            int b = GetParameter(numbers, numbers[pos + 2], mode2);
+                            int c = numbers[pos + 3];
+                            numbers[c] = a + b;
+                            pos += 4;
+                            break;
+                        }
+                    case 2:
+                        {
+                            int a = GetParameter(numbers, numbers[pos + 1], mode1);
+                            int b = GetParameter(numbers, numbers[pos + 2], mode2);
+                            int c = numbers[pos + 3];
+                            numbers[c] = a * b;
+                            pos += 4;
+                            break;
+                        }
+                    case 3: //get input
+                        {
+                            numbers[numbers[pos + 1]] = inputs[inputIndex++];
+                            pos += 2;
+                            break;
+                        }
+                    case 4: //print
+                        {
+                            int mode = (instruction / 100) % 10;
+                            output = GetParameter(numbers, numbers[pos + 1], mode);
+                            pos += 2;
+                            break;
+                        }
+                    case 5: //jump if true
+                        {
+                            int a = GetParameter(numbers, numbers[pos + 1], mode1);
+                            int b = GetParameter(numbers, numbers[pos + 2], mode2);
+                            pos = a != 0 ? b : pos + 3;
+                            break;
+                        }
+                    case 6: //jump if false
+                        {
+                            int a = GetParameter(numbers, numbers[pos + 1], mode1);
+                            int b = GetParameter(numbers, numbers[pos + 2], mode2);
+                            pos = a == 0 ? b : pos + 3;
+                            break;
+                        }
+                    case 7: //less than
+                        {
+                            int a = GetParameter(numbers, numbers[pos + 1], mode1);
+                            int b = GetParameter(numbers, numbers[pos + 2], mode2);
+                            numbers[numbers[pos + 3]] = a < b ? 1 : 0;
+                            pos += 4;
+                            break;
+                        }
+                    case 8: //equals
+                        {
+                            int a = GetParameter(numbers, numbers[pos + 1], mode1);
+                            int b = GetParameter(numbers, numbers[pos + 2], mode2);
+                            numbers[numbers[pos + 3]] = a == b ? 1 : 0;
+                            pos += 4;
+                            break;
+                        }
+                }
+            }
+            return output;
+        }
+
+        static int GetParameter(int[] memory, int value, int mode)
+        {
+            return mode == 0 ? memory[value] : value;
+        }
+    }
+}
